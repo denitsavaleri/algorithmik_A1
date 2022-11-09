@@ -1,5 +1,7 @@
 import os
-import Imagehash
+
+import imagehash
+from PIL import Image
 from pathlib import Path
 from typing import List
 
@@ -16,8 +18,8 @@ def getImagePaths():
 
     return listOfAllImagePaths
 
-def get(image):
-    print(Imagehash.dhash(os.open(getImagePaths()[0])))
+def get():
+    print(imagehash.dhash(Image.open(getImagePaths()[0])))
     return
 
 
@@ -27,6 +29,7 @@ def getMostSimilar(image):
 
 def main():
     print(getImagePaths().__len__())
+    get()
     # test
 
 
