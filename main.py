@@ -1,4 +1,5 @@
 import os
+import Imagehash
 from pathlib import Path
 from typing import List
 
@@ -16,7 +17,7 @@ def getImagePaths():
     return listOfAllImagePaths
 
 def get(image):
-    #todo
+    print(Imagehash.dhash(os.open(getImagePaths()[0])))
     return
 
 
@@ -34,3 +35,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
