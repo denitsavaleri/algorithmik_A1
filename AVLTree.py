@@ -1,11 +1,4 @@
-class node:
-	def __init__(self,value=None):
-		self.value=value
-		self.left_child=None
-		self.right_child=None
-		self.parent=None # pointer to parent node in tree
-		self.height=1 # height of node in tree (max dist. to leaf) NEW FOR AVL
-
+from typing import List
 class AVLTree:
 	def __init__(self):
 		self.root=None
@@ -34,9 +27,9 @@ class AVLTree:
 					next_nodes.extend([None,None])
 					continue
 
-				if n.value!=None:       
-					buf=' '*int((5-len(str(n.value)))/2)
-					cur_row+='%s%s%s'%(buf,str(n.value),buf)+sep
+				if n.key!=None:       
+					buf=' '*int((5-len(str(n.key)))/2)
+					cur_row+='%s%s%s'%(buf,str(n.key),buf)+sep
 				else:
 					cur_row+=' '*5+sep
 
@@ -59,29 +52,45 @@ class AVLTree:
 			sep=' '*int(len(sep)/2) # cut separator size in half
 		return content
 
-	def insert(self,value):
-		if self.root==None:
-			self.root=node(value)
-		else:
-			self._insert(value,self.root)
+	def insert(self,key, pathToImage):
+		"""
+		Insert a new nopde into the Tree. If the key allready exists the associated Node will be updated.
 
-	def _insert(self,value,cur_node):
-		if value<cur_node.value:
+		Return:
+		-------
+		If the Key does not exist return new Node.
+		If the Key does exist return the Node that has been updated.
+		"""
+		if self.root==None:
+			newNode = self.createNewNode(key, pathToImage)
+			self.root=newNode
+			return newNode
+		else:
+			return self._insert(key, pathToImage, self.root)
+
+	def _insert(self,key, pathToImage, cur_node):
+		if key<cur_node.key:
 			if cur_node.left_child==None:
-				cur_node.left_child=node(value)
+				newNode = self.createNewNode(key, pathToImage)
+				cur_node.left_child = newNode
 				cur_node.left_child.parent=cur_node # set parent
 				self._inspect_insertion(cur_node.left_child)
+				return newNode
 			else:
-				self._insert(value,cur_node.left_child)
-		elif value>cur_node.value:
+				return self._insert(key, pathToImage, cur_node.left_child)
+		elif key>cur_node.key:
 			if cur_node.right_child==None:
-				cur_node.right_child=node(value)
+				newNode = self.createNewNode(key, pathToImage)
+				cur_node.right_child = newNode
 				cur_node.right_child.parent=cur_node # set parent
 				self._inspect_insertion(cur_node.right_child)
+				return newNode
 			else:
-				self._insert(value,cur_node.right_child)
-		else:
-			print("Value already in tree!")
+				return self._insert(key, pathToImage, cur_node.right_child)
+		elif key == cur_node.key:
+			updatedNode = self.updateNode(cur_node, pathToImage)
+			return updatedNode
+		
 
 	def print_tree(self):
 		if self.root!=None:
@@ -90,7 +99,7 @@ class AVLTree:
 	def _print_tree(self,cur_node):
 		if cur_node!=None:
 			self._print_tree(cur_node.left_child)
-			print ('%s, h=%d'%(str(cur_node.value),cur_node.height))
+			print ('%s, h=%d'%(str(cur_node.key),cur_node.height))
 			self._print_tree(cur_node.right_child)
 
 	def height(self):
@@ -105,22 +114,22 @@ class AVLTree:
 		right_height=self._height(cur_node.right_child,cur_height+1)
 		return max(left_height,right_height)
 
-	def find(self,value):
+	def find(self,key):
 		if self.root!=None:
-			return self._find(value,self.root)
+			return self._find(key,self.root)
 		else:
 			return None
 
-	def _find(self,value,cur_node):
-		if value==cur_node.value:
+	def _find(self,key,cur_node):
+		if key==cur_node.key:
 			return cur_node
-		elif value<cur_node.value and cur_node.left_child!=None:
-			return self._find(value,cur_node.left_child)
-		elif value>cur_node.value and cur_node.right_child!=None:
-			return self._find(value,cur_node.right_child)
+		elif key<cur_node.key and cur_node.left_child!=None:
+			return self._find(key,cur_node.left_child)
+		elif key>cur_node.key and cur_node.right_child!=None:
+			return self._find(key,cur_node.right_child)
 
-	def delete_value(self,value):
-		return self.delete_node(self.find(value))
+	def delete_key(self,key):
+		return self.delete_node(self.find(key))
 
 	def delete_node(self,node):
 
@@ -128,13 +137,13 @@ class AVLTree:
 		# Improvements since prior lesson
 
 		# Protect against deleting a node not found in the tree
-		if node==None or self.find(node.value)==None:
+		if node==None or self.find(node.key)==None:
 			print("Node to be deleted not found in the tree!")
 			return None 
 		## -----
 
-		# returns the node with min value in tree rooted at input node
-		def min_value_node(n):
+		# returns the node with min key in tree rooted at input node
+		def min_key_node(n):
 			current=n
 			while current.left_child!=None:
 				current=current.left_child
@@ -193,13 +202,13 @@ class AVLTree:
 		if node_children==2:
 
 			# get the inorder successor of the deleted node
-			successor=min_value_node(node.right_child)
+			successor=min_key_node(node.right_child)
 
-			# copy the inorder successor's value to the node formerly
-			# holding the value we wished to delete
-			node.value=successor.value
+			# copy the inorder successor's key to the node formerly
+			# holding the key we wished to delete
+			node.key=successor.key
 
-			# delete the inorder successor now that it's value was
+			# delete the inorder successor now that it's key was
 			# copied into the other node
 			self.delete_node(successor)
 
@@ -214,19 +223,19 @@ class AVLTree:
 			# any sections which now invalidate the AVL balance rules
 			self._inspect_deletion(node_parent)
 
-	def search(self,value):
+	def search(self,key):
 		if self.root!=None:
-			return self._search(value,self.root)
+			return self._search(key,self.root)
 		else:
 			return False
 
-	def _search(self,value,cur_node):
-		if value==cur_node.value:
+	def _search(self,key,cur_node):
+		if key==cur_node.key:
 			return True
-		elif value<cur_node.value and cur_node.left_child!=None:
-			return self._search(value,cur_node.left_child)
-		elif value>cur_node.value and cur_node.right_child!=None:
-			return self._search(value,cur_node.right_child)
+		elif key<cur_node.key and cur_node.left_child!=None:
+			return self._search(key,cur_node.left_child)
+		elif key>cur_node.key and cur_node.right_child!=None:
+			return self._search(key,cur_node.right_child)
 		return False 
 
 
@@ -327,3 +336,29 @@ class AVLTree:
 		left=self.get_height(cur_node.left_child)
 		right=self.get_height(cur_node.right_child)
 		return cur_node.left_child if left>=right else cur_node.right_child
+
+	def createNewNode(self, key, pathToImage):
+		newNode = node(key)
+		newNode.addPathToBucket(pathToImage)
+		return newNode
+
+	def updateNode(self, nodeToUpdate, pathToImage):
+		nodeToUpdate.addPathToBucket(pathToImage)
+		return nodeToUpdate
+
+
+class node:
+	def __init__(self, key=None):
+		self.key=key
+		self.pBucket : List = [] #Bucket of Paths (multiple Paths in a List)
+		self.left_child=None
+		self.right_child=None
+		self.parent=None # pointer to parent node in tree
+		self.height=1 # height of node in tree (max dist. to leaf) NEW FOR AVL
+
+	def addPathToBucket(self, path : str):
+		self.pBucket.append(path)
+
+	def getPaths(self) -> List:
+		return self.pBucket
+

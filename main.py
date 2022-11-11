@@ -7,6 +7,8 @@ from PIL import Image
 from pathlib import Path
 from typing import List
 
+from AVLTree import AVLTree
+
 """
 Path functions
 """
@@ -47,6 +49,7 @@ def getImagePaths():
 
     pathToFile = os.path.join(projectDir, moduleName)
     listOfAllImagePaths: List = []
+
 
     for path in Path(pathToFile).rglob('*.jpg'):
         listOfAllImagePaths.append(os.path.join(pathToFile, path))
@@ -90,18 +93,29 @@ Testing
 def main():
     # print(getImagePaths()[0])
 
-    """ Testen der Bilder in Testimage-Ordner zahl durch 0-2 ersetzbar erst wird das gesuchte Bild angezeigt und nach
+    """ Testen der Bilder in Testimage-Ordner zahl durch 0-4 ersetzbar erst wird das gesuchte Bild angezeigt und nach
     dem Drücken von enter das Ergebnis der Funktion (Bild aus Images-Ordner oder notFound)
     # zum Testen von funktion entfernen
     """
-    zahl = 2
+
+    # Hash Scores for all of the images
+    imagepaths_test_images = getTestImagePaths()
+    for path in imagepaths_test_images:
+        print(path, imagehash.dhash(Image.open(path)))
+
+    imagepaths_images = getImagePaths()
+    for path in imagepaths_images:
+        print(path, imagehash.dhash(Image.open(path)))
+
+    zahl = 4
+    # show chosen picture
     Image.open(getTestImagePaths()[zahl]).show()
     input("Press Enter to continue...")
-    # get(Image.open(getTestImagePaths()[zahl])).show()
-    # getMostSimilar(Image.open(getTestImagePaths()[zahl])).show()
+    # find picture in Images
+    #get(Image.open(getTestImagePaths()[zahl])).show()
 
-
-# Press the green button in the gutter to run the script.
+    # find the most similar picture to the chosen one
+    #getMostSimilar(Image.open(getTestImagePaths()[zahl])).show()
 
 
 if __name__ == '__main__':
