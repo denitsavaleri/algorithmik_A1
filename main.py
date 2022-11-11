@@ -85,6 +85,7 @@ def getMostSimilar(image):
     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
 
 
+
 """
 Testing
 """
@@ -107,7 +108,7 @@ def main():
     for path in imagepaths_images:
         print(path, imagehash.dhash(Image.open(path)))
 
-    zahl = 4
+    zahl = 2
     # show chosen picture
     Image.open(getTestImagePaths()[zahl]).show()
     input("Press Enter to continue...")
