@@ -60,7 +60,8 @@ def getImagePaths():
 """
 real functions
 """
-
+def get_image_hash(image):
+    return imagehash.dhash(image)
 
 def hamming_distance(imagehash, imagehash2):
     score = scipy.spatial.distance.hamming(imagehash, imagehash2)
@@ -68,19 +69,19 @@ def hamming_distance(imagehash, imagehash2):
 
 
 def get(image):
-    imghash = imagehash.dhash(image)
+    imghash = get_image_hash(image)
     imagepaths = getImagePaths()
     for path in imagepaths:
-        if imghash == imagehash.dhash(Image.open(path)):
+        if imghash == get_image_hash(Image.open(path)):
             return Image.open(path)
     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
 
 
 def getMostSimilar(image):
-    imghash = imagehash.dhash(image)
+    imghash = get_image_hash(image)
     imagepaths = getImagePaths()
     for path in imagepaths:
-        if hamming_distance(imghash.hash.flat, imagehash.dhash(Image.open(path)).hash.flat) < .10:
+        if hamming_distance(imghash.hash.flat, get_image_hash(Image.open(path)).hash.flat) < .10:
             return Image.open(path)
     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
 
@@ -88,21 +89,59 @@ def create_tree():
     tree = AVLTree()
     imagepaths = getImagePaths()
     for path in imagepaths:
-        if(tree.find(str(imagehash.dhash(Image.open(path)))) != None):
-            tree.updateNode(tree.find(str(imagehash.dhash(Image.open(path)))), path)
-        tree.insert(str(imagehash.dhash(Image.open(path))), path)
+        if(tree.find(str(get_image_hash(Image.open(path)))) != None):
+            tree.updateNode(tree.find(str(get_image_hash(Image.open(path)))), path)
+        tree.insert(str(get_image_hash(Image.open(path))), path)
     return tree
 
 
 def get_image_avl(image, tree):
-    imghash = imagehash.dhash(image)
+    imghash = get_image_hash(image)
     if tree.search(str(imghash)):
         return image
     else:
         return Image.open(getNotFoundImagePath()[0])
 
 def get_most_similar_avl(image, tree):
-    pass
+    imghash = get_image_hash(image)
+    if tree.search(str(imghash)):
+        print("This image is already in the dataset and cannot be used as similar image")
+    return Image.open(_get_most_similar_avl(imghash, tree.root, tree.root.pBucket[0]))
+
+
+def _get_most_similar_avl(imghash, node, most_similar_path):
+    # Basisfall
+    if node.left_child is None and node.right_child is None:
+        return most_similar_path
+    # Hamming Distanz zw. den jetzigen node und den jetzigen most similar node
+    hamming_most_similar_node = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(most_similar_path)).hash.flat)
+
+    # ´Distanz zu dem linken oder dem rechten berechnen
+
+    if node.left_child is not None:
+        hamming_left = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(node.left_child.pBucket[0])).hash.flat)
+    else:
+        hamming_left = float("inf")
+
+
+    if node.right_child is not None:
+        hamming_right = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(node.right_child.pBucket[0])).hash.flat)
+    else:
+        hamming_right = float("inf")
+
+    # entscheiden ob wir nach links oder nach rechts gehen sollen
+    if hamming_right < hamming_left:
+        if hamming_right < hamming_most_similar_node:
+            most_similar_path = node.right_child.pBucket[0]
+        return _get_most_similar_avl(imghash, node.right_child, most_similar_path)
+    else:
+        if hamming_left < hamming_most_similar_node:
+            most_similar_path = node.left_child.pBucket[0]
+        return _get_most_similar_avl(imghash, node.left_child, most_similar_path)
+
+
+
+
 
 """
 Testing
@@ -126,20 +165,29 @@ def main():
     for path in imagepaths_images:
         print(path, imagehash.dhash(Image.open(path)))
 
-    zahl = 2
+    ################ DHash Hund Nr.13 ##########
+    zahl = 1
     # show chosen picture
     Image.open(getTestImagePaths()[zahl]).show()
     #input("Press Enter to continue...")
     # find picture in Images
-    #get(Image.open(getTestImagePaths()[zahl])).show()
+    get(Image.open(getTestImagePaths()[zahl])).show()
 
-    # find the most similar picture to the chosen one
-    #getMostSimilar(Image.open(getTestImagePaths()[zahl])).show()
-
+    # AVL Baum
     tree = create_tree()
     tree.print_tree()
-    get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
+    ############## AVL orange cat ##############
+    zahl = 3
+    Image.open(getTestImagePaths()[zahl]).show()
+    get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+    get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+
+    ############## AVL 13:hund ##############
+    zahl = 1
+    Image.open(getTestImagePaths()[zahl]).show()
+    get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+    get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
 if __name__ == '__main__':
     main()
