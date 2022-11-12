@@ -84,6 +84,16 @@ def getMostSimilar(image):
             return Image.open(path)
     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
 
+def create_tree():
+    tree = AVLTree()
+    imagepaths = getImagePaths()
+    for path in imagepaths:
+        if(tree.find(str(imagehash.dhash(Image.open(path)))) != None):
+            tree.updateNode(tree.find(str(imagehash.dhash(Image.open(path)))), path)
+        tree.insert(str(imagehash.dhash(Image.open(path))), path)
+    return tree
+
+
 
 
 """
@@ -110,13 +120,16 @@ def main():
 
     zahl = 2
     # show chosen picture
-    Image.open(getTestImagePaths()[zahl]).show()
-    input("Press Enter to continue...")
+    #Image.open(getTestImagePaths()[zahl]).show()
+    #input("Press Enter to continue...")
     # find picture in Images
     #get(Image.open(getTestImagePaths()[zahl])).show()
 
     # find the most similar picture to the chosen one
     #getMostSimilar(Image.open(getTestImagePaths()[zahl])).show()
+
+    tree = create_tree()
+    tree.print_tree()
 
 
 if __name__ == '__main__':
