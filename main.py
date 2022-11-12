@@ -94,7 +94,15 @@ def create_tree():
     return tree
 
 
+def get_image_avl(image, tree):
+    imghash = imagehash.dhash(image)
+    if tree.search(str(imghash)):
+        return image
+    else:
+        return Image.open(getNotFoundImagePath()[0])
 
+def get_most_similar_avl(image, tree):
+    pass
 
 """
 Testing
@@ -120,7 +128,7 @@ def main():
 
     zahl = 2
     # show chosen picture
-    #Image.open(getTestImagePaths()[zahl]).show()
+    Image.open(getTestImagePaths()[zahl]).show()
     #input("Press Enter to continue...")
     # find picture in Images
     #get(Image.open(getTestImagePaths()[zahl])).show()
@@ -130,6 +138,7 @@ def main():
 
     tree = create_tree()
     tree.print_tree()
+    get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
 
 if __name__ == '__main__':
