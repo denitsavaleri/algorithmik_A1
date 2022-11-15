@@ -3,6 +3,7 @@ import os
 import imagehash
 import numpy
 import scipy
+import self as self
 from PIL import Image
 from pathlib import Path
 from typing import List
@@ -58,6 +59,28 @@ def getImagePaths():
 
 
 """
+global variables
+"""
+imagepaths_test_images = getTestImagePaths()
+
+imagepaths = getImagePaths()
+
+# Erstmal eine unschöne Lösung, weil "imageHashSet" und "imagepathsHashDict" nicht geupdated werden,
+# falls die Inhalte vom "Images" oder "TestImages" Ordner verändert werden.
+# Aber es ermöglicht, dass get O(1) ist
+#
+# Ermöglicht es zu prüfen, ob ein Hash im "Images" Ordner enthalten ist ohne zu iterieren
+imageHashSet = set()
+for path in imagepaths:
+    imageHashSet.add(imagehash.dhash(Image.open(path)))
+
+# Ermöglicht mit einem Hash nach dem Image Path zu suchen ohne zu iterieren
+imagepathsHashDict = {}
+for path in imagepaths:
+    imagepathsHashDict[imagehash.dhash(Image.open(path))] = path
+
+
+"""
 real functions
 """
 def get_image_hash(image):
@@ -67,19 +90,14 @@ def hamming_distance(imagehash, imagehash2):
     score = scipy.spatial.distance.hamming(imagehash, imagehash2)
     return score
 
-
 def get(image):
     imghash = get_image_hash(image)
-    imagepaths = getImagePaths()
-    for path in imagepaths:
-        if imghash == get_image_hash(Image.open(path)):
-            return Image.open(path)
-    return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
-
+    if imghash in imageHashSet:
+        return Image.open(imagepathsHashDict[imghash])
+    return Image.open(getNotFoundImagePath()[0])
 
 def getMostSimilar(image):
     imghash = get_image_hash(image)
-    imagepaths = getImagePaths()
     for path in imagepaths:
         if hamming_distance(imghash.hash.flat, get_image_hash(Image.open(path)).hash.flat) < .10:
             return Image.open(path)
@@ -87,7 +105,6 @@ def getMostSimilar(image):
 
 def create_tree():
     tree = AVLTree()
-    imagepaths = getImagePaths()
     for path in imagepaths:
         if(tree.find(str(get_image_hash(Image.open(path)))) != None):
             tree.updateNode(tree.find(str(get_image_hash(Image.open(path)))), path)
@@ -157,21 +174,19 @@ def main():
     """
 
     # Hash Scores for all of the images
-    imagepaths_test_images = getTestImagePaths()
     for path in imagepaths_test_images:
         print(path, imagehash.dhash(Image.open(path)))
 
-    imagepaths_images = getImagePaths()
-    for path in imagepaths_images:
+    for path in imagepaths:
         print(path, imagehash.dhash(Image.open(path)))
 
     ################ DHash Hund Nr.13 ##########
     zahl = 1
     # show chosen picture
-    Image.open(getTestImagePaths()[zahl]).show()
+    Image.open(imagepaths_test_images[zahl]).show()
     #input("Press Enter to continue...")
     # find picture in Images
-    get(Image.open(getTestImagePaths()[zahl])).show()
+    get(Image.open(imagepaths_test_images[zahl])).show()
 
     # AVL Baum
     tree = create_tree()
