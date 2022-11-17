@@ -51,7 +51,6 @@ def getImagePaths():
     pathToFile = os.path.join(projectDir, moduleName)
     listOfAllImagePaths: List = []
 
-
     for path in Path(pathToFile).rglob('*.jpg'):
         listOfAllImagePaths.append(os.path.join(pathToFile, path))
 
@@ -71,24 +70,33 @@ imagepaths = getImagePaths()
 #
 # Ermöglicht es zu prüfen, ob ein Hash im "Images" Ordner enthalten ist ohne zu iterieren
 imageHashSet = set()
-for path in imagepaths:
-    imageHashSet.add(imagehash.dhash(Image.open(path)))
-
 # Ermöglicht mit einem Hash nach dem Image Path zu suchen ohne zu iterieren
 imagepathsHashDict = {}
-for path in imagepaths:
-    imagepathsHashDict[imagehash.dhash(Image.open(path))] = path
+
+
+def fill_set():
+    for path in imagepaths:
+        imageHashSet.add(imagehash.dhash(Image.open(path)))
+
+
+def fill_dictionary():
+    for path in imagepaths:
+        imagepathsHashDict[imagehash.dhash(Image.open(path))] = path
 
 
 """
 real functions
 """
+
+
 def get_image_hash(image):
     return imagehash.dhash(image)
+
 
 def hamming_distance(imagehash, imagehash2):
     score = scipy.spatial.distance.hamming(imagehash, imagehash2)
     return score
+
 
 def get(image):
     imghash = get_image_hash(image)
@@ -96,6 +104,8 @@ def get(image):
         return Image.open(imagepathsHashDict[imghash])
     return Image.open(getNotFoundImagePath()[0])
 
+
+# diese Funktion müssen wir nicht implementieren für DHash
 def getMostSimilar(image):
     imghash = get_image_hash(image)
     for path in imagepaths:
@@ -103,10 +113,11 @@ def getMostSimilar(image):
             return Image.open(path)
     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
 
+
 def create_tree():
     tree = AVLTree()
     for path in imagepaths:
-        if(tree.find(str(get_image_hash(Image.open(path)))) != None):
+        if (tree.find(str(get_image_hash(Image.open(path)))) != None):
             tree.updateNode(tree.find(str(get_image_hash(Image.open(path)))), path)
         tree.insert(str(get_image_hash(Image.open(path))), path)
     return tree
@@ -118,6 +129,7 @@ def get_image_avl(image, tree):
         return image
     else:
         return Image.open(getNotFoundImagePath()[0])
+
 
 def get_most_similar_avl(image, tree):
     imghash = get_image_hash(image)
@@ -131,18 +143,20 @@ def _get_most_similar_avl(imghash, node, most_similar_path):
     if node.left_child is None and node.right_child is None:
         return most_similar_path
     # Hamming Distanz zw. den jetzigen node und den jetzigen most similar node
-    hamming_most_similar_node = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(most_similar_path)).hash.flat)
+    hamming_most_similar_node = hamming_distance(imghash.hash.flat,
+                                                 get_image_hash(Image.open(most_similar_path)).hash.flat)
 
     # ´Distanz zu dem linken oder dem rechten berechnen
 
     if node.left_child is not None:
-        hamming_left = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(node.left_child.pBucket[0])).hash.flat)
+        hamming_left = hamming_distance(imghash.hash.flat,
+                                        get_image_hash(Image.open(node.left_child.pBucket[0])).hash.flat)
     else:
         hamming_left = float("inf")
 
-
     if node.right_child is not None:
-        hamming_right = hamming_distance(imghash.hash.flat, get_image_hash(Image.open(node.right_child.pBucket[0])).hash.flat)
+        hamming_right = hamming_distance(imghash.hash.flat,
+                                         get_image_hash(Image.open(node.right_child.pBucket[0])).hash.flat)
     else:
         hamming_right = float("inf")
 
@@ -155,9 +169,6 @@ def _get_most_similar_avl(imghash, node, most_similar_path):
         if hamming_left < hamming_most_similar_node:
             most_similar_path = node.left_child.pBucket[0]
         return _get_most_similar_avl(imghash, node.left_child, most_similar_path)
-
-
-
 
 
 """
@@ -179,12 +190,14 @@ def main():
 
     for path in imagepaths:
         print(path, imagehash.dhash(Image.open(path)))
+    fill_set()
+    fill_dictionary()
 
     ################ DHash Hund Nr.13 ##########
     zahl = 1
     # show chosen picture
     Image.open(imagepaths_test_images[zahl]).show()
-    #input("Press Enter to continue...")
+    # input("Press Enter to continue...")
     # find picture in Images
     get(Image.open(imagepaths_test_images[zahl])).show()
 
@@ -203,6 +216,7 @@ def main():
     Image.open(getTestImagePaths()[zahl]).show()
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+
 
 if __name__ == '__main__':
     main()
