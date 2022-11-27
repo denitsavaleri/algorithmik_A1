@@ -133,7 +133,7 @@ def get_image_avl(image, tree):
 
 def get_most_similar_avl(image, tree):
     imghash = get_image_hash(image)
-    if tree.search(str(imghash)):
+    if imghash in imageHashSet:
         print("This image is already in the dataset and cannot be used as similar image")
     return Image.open(_get_most_similar_avl(imghash, tree.root, tree.root.pBucket[0]))
 
