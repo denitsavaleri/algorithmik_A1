@@ -133,8 +133,8 @@ def get_image_avl(image, tree):
 
 def get_most_similar_avl(image, tree):
     imghash = get_image_hash(image)
-    if imghash in imageHashSet:
-        print("This image is already in the dataset and cannot be used as similar image")
+    if tree.search(str(imghash)):
+        raise Exception("This image is already in the dataset and cannot be used as similar image")
     return Image.open(_get_most_similar_avl(imghash, tree.root, tree.root.pBucket[0]))
 
 
@@ -142,25 +142,27 @@ def _get_most_similar_avl(imghash, node, most_similar_path):
     # Basisfall
     if node.left_child is None and node.right_child is None:
         return most_similar_path
-    # Hamming Distanz zw. den jetzigen node und den jetzigen most similar node
     hamming_most_similar_node = hamming_distance(imghash.hash.flat,
                                                  get_image_hash(Image.open(most_similar_path)).hash.flat)
+    hash_most_similar = str(get_image_hash(Image.open(most_similar_path)))
 
-    # Distanz zu dem linken oder dem rechten berechnen
     if node.left_child is not None:
+        hash_left = str(get_image_hash(Image.open(node.left_child.pBucket[0])))
         hamming_left = hamming_distance(imghash.hash.flat,
                                         get_image_hash(Image.open(node.left_child.pBucket[0])).hash.flat)
     else:
+        hash_left = float("inf")
         hamming_left = float("inf")
 
     if node.right_child is not None:
+        hash_right = str(get_image_hash(Image.open(node.right_child.pBucket[0])))
         hamming_right = hamming_distance(imghash.hash.flat,
                                          get_image_hash(Image.open(node.right_child.pBucket[0])).hash.flat)
     else:
+        hash_right = float("inf")
         hamming_right = float("inf")
-
     # entscheiden ob wir nach links oder nach rechts gehen sollen
-    if hamming_right < hamming_left:
+    if str(hash_right) < str(hash_left):
         if hamming_right < hamming_most_similar_node:
             most_similar_path = node.right_child.pBucket[0]
         return _get_most_similar_avl(imghash, node.right_child, most_similar_path)
@@ -176,8 +178,6 @@ Testing
 
 
 def main():
-    # print(getImagePaths()[0])
-
     """ Testen der Bilder in Testimage-Ordner zahl durch 0-4 ersetzbar erst wird das gesuchte Bild angezeigt und nach
     dem Drücken von enter das Ergebnis der Funktion (Bild aus Images-Ordner oder notFound)
     # zum Testen von funktion entfernen
@@ -205,7 +205,7 @@ def main():
     tree.print_tree()
 
     ############## AVL orange cat ##############
-    zahl = 3
+    zahl =1
     Image.open(getTestImagePaths()[zahl]).show()
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
@@ -218,6 +218,7 @@ def main():
 
 
     # does changing the foto changes the hash score?
+    # rotating -> changes the hash
     """
     zahl = 1
     image_to_change = getTestImagePaths()[zahl]
