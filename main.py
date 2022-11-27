@@ -7,7 +7,7 @@ import self as self
 from PIL import Image
 from pathlib import Path
 from typing import List
-
+from PIL import Image
 from AVLTree import AVLTree
 
 """
@@ -146,7 +146,7 @@ def _get_most_similar_avl(imghash, node, most_similar_path):
     hamming_most_similar_node = hamming_distance(imghash.hash.flat,
                                                  get_image_hash(Image.open(most_similar_path)).hash.flat)
 
-    # ´Distanz zu dem linken oder dem rechten berechnen
+    # Distanz zu dem linken oder dem rechten berechnen
     if node.left_child is not None:
         hamming_left = hamming_distance(imghash.hash.flat,
                                         get_image_hash(Image.open(node.left_child.pBucket[0])).hash.flat)
@@ -217,5 +217,15 @@ def main():
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
 
+    # does changing the foto changes the hash score?
+    """
+    zahl = 1
+    image_to_change = getTestImagePaths()[zahl]
+    Image.open(image_to_change).show()
+    print("Image Hash of the image to be rotated: ", imagehash.dhash(Image.open(image_to_change)))
+    rotated_image = Image.open(getTestImagePaths()[zahl]).rotate(180)
+    rotated_image.show()
+    print("Image Hash of the rotated: ", imagehash.dhash(rotated_image))
+    """
 if __name__ == '__main__':
     main()
