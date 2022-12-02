@@ -64,7 +64,8 @@ imagepaths_test_images = getTestImagePaths()
 
 imagepaths = getImagePaths()
 
-# Erstmal eine unschöne Lösung, weil "imageHashSet" und "imagepathsHashDict" nicht geupdated werden,
+# Erstmal eine unschöne Lösung, weil "imageHashSet" und "imagepathsHashDict"
+# nicht geupdated werden,
 # falls die Inhalte vom "Images" oder "TestImages" Ordner verändert werden.
 # Aber es ermöglicht, dass get O(1) ist
 #
@@ -100,7 +101,7 @@ def hamming_distance(imagehash, imagehash2):
 
 def get(image):
     imghash = get_image_hash(image)
-    if imghash in imageHashSet:
+    if imghash in imagepathsHashDict:
         return Image.open(imagepathsHashDict[imghash])
     return Image.open(getNotFoundImagePath()[0])
 
@@ -205,13 +206,13 @@ def main():
     tree.print_tree()
 
     ############## AVL orange cat ##############
-    zahl =1
+    zahl = 3
     Image.open(getTestImagePaths()[zahl]).show()
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
     ############## AVL 13:hund ##############
-    zahl = 1
+    zahl = 0
     Image.open(getTestImagePaths()[zahl]).show()
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
