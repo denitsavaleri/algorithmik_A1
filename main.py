@@ -107,13 +107,13 @@ def get(image):
 
 
 # diese Funktion müssen wir nicht implementieren für DHash
-def getMostSimilar(image):
-    imghash = get_image_hash(image)
-    for path in imagepaths:
-        if hamming_distance(imghash.hash.flat, get_image_hash(Image.open(path)).hash.flat) < .10:
-            return Image.open(path)
-    return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
-
+# def getMostSimilar(image):
+#     imghash = get_image_hash(image)
+#     for path in imagepaths:
+#         if hamming_distance(imghash.hash.flat, get_image_hash(Image.open(path)).hash.flat) < .10:
+#             return Image.open(path)
+#     return Image.open(getNotFoundImagePath()[0])  # gibt image not found bild zurück
+#
 
 def create_tree():
     tree = AVLTree()
@@ -197,7 +197,7 @@ def main():
     zahl = 1
     # show chosen picture
     Image.open(imagepaths_test_images[zahl]).show()
-    # input("Press Enter to continue...")
+    input("Press Enter to continue...")
     # find picture in Images
     get(Image.open(imagepaths_test_images[zahl])).show()
 
@@ -207,27 +207,33 @@ def main():
 
     ############## AVL orange cat ##############
     zahl = 3
+    input("Press Enter to continue...")
     Image.open(getTestImagePaths()[zahl]).show()
+    input("Press Enter to continue...")
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+    input("Press Enter to continue...")
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
     ############## AVL 13:hund ##############
     zahl = 0
+    input("Press Enter to continue...")
     Image.open(getTestImagePaths()[zahl]).show()
+    input("Press Enter to continue...")
     get_image_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
+    input("Press Enter to continue...")
     get_most_similar_avl(Image.open(getTestImagePaths()[zahl]), tree).show()
 
 
     # does changing the foto changes the hash score?
     # rotating -> changes the hash
-    """
-    zahl = 1
-    image_to_change = getTestImagePaths()[zahl]
-    Image.open(image_to_change).show()
-    print("Image Hash of the image to be rotated: ", imagehash.dhash(Image.open(image_to_change)))
-    rotated_image = Image.open(getTestImagePaths()[zahl]).rotate(180)
-    rotated_image.show()
-    print("Image Hash of the rotated: ", imagehash.dhash(rotated_image))
-    """
+
+    # zahl = 1
+    # image_to_change = getTestImagePaths()[zahl]
+    # Image.open(image_to_change).show()
+    # print("Image Hash of the image to be rotated: ", imagehash.dhash(Image.open(image_to_change)))
+    # rotated_image = Image.open(getTestImagePaths()[zahl]).rotate(180)
+    # rotated_image.show()
+    # print("Image Hash of the rotated: ", imagehash.dhash(rotated_image))
+
 if __name__ == '__main__':
     main()
